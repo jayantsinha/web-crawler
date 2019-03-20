@@ -7,7 +7,7 @@ const (
 
 const (
 	Domain = "localhost"
-	ListenPort = "8888"
+	ListenPort = ":8888"
 	Environment = PRODUCTION
 	Logging = false
 	LoggingPath = ""
