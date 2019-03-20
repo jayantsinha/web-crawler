@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/gin"
 )
 
 func setupRouter() *gin.Engine {
 	router := gin.New()
-	router.GET("/ping", func(c *gin.Context) {
-		c.String(200, "pong")
-	})
+
 	return router
 }
 
@@ -27,6 +27,7 @@ func main() {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
+	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Enable gin logging if enabled in config
 	if Logging {
@@ -44,6 +45,8 @@ func main() {
 			"message": "Web Crawler " + Version,
 		})
 	})
+
+	router.GET("/crawl", ScrapingController)
 
 	srv := &http.Server{
 		Addr:    ListenPort,
