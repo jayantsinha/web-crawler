@@ -13,17 +13,18 @@ import (
 )
 
 func setupRouter() *gin.Engine {
+	if Environment == PRODUCTION {
+		gin.SetMode(gin.ReleaseMode)
+	} else if Environment == TEST {
+		gin.SetMode(gin.TestMode)
+	}
 	router := gin.New()
-
 	return router
 }
 
 func main() {
 
 	router := setupRouter()
-	if Environment == PRODUCTION {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
