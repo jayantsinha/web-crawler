@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter() *gin.Engine {
+func SetupRouter() *gin.Engine {
 	if Environment == PRODUCTION {
 		gin.SetMode(gin.ReleaseMode)
 	} else if Environment == DEBUG {
@@ -24,7 +24,7 @@ func setupRouter() *gin.Engine {
 
 func main() {
 
-	router := setupRouter()
+	router := SetupRouter()
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
@@ -44,6 +44,12 @@ func main() {
 	router.GET("/version", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Web Crawler " + Version,
+		})
+	})
+
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
 		})
 	})
 
