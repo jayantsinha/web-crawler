@@ -15,8 +15,8 @@ import (
 func setupRouter() *gin.Engine {
 	if Environment == PRODUCTION {
 		gin.SetMode(gin.ReleaseMode)
-	} else if Environment == TEST {
-		gin.SetMode(gin.TestMode)
+	} else if Environment == DEBUG {
+		gin.SetMode(gin.DebugMode)
 	}
 	router := gin.New()
 	return router
