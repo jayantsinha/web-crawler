@@ -3,9 +3,10 @@ package main
 const (
 	DEVELOPMENT = iota
 	PRODUCTION
+	TEST
 )
 
-const (
+var (
 	Domain = "localhost"
 	ListenPort = ":8888"
 	Environment = PRODUCTION
