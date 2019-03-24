@@ -4,24 +4,28 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestScrapingController(t *testing.T) {
+	response := make(map[string]interface{})
+	router := SetupRouter()
+	router.GET("/crawl", ScrapingController)
 
-	router := setupRouter()
-	w := performRequest(router, "GET", "/crawl")
-	assert.Equal(t, http.StatusOK, w.Code)
+	req, _ := http.NewRequest(http.MethodGet, "/crawl", nil)
+	req.Header.Add("Scrape", "http://testing-ground.scraping.pro/blocks")
 
-	var response JsonResponse
-	err := json.Unmarshal([]byte(w.Body.String()), &response)
+	resp := httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
 
-	if err != nil {
-		t.Errorf("Invalid response format: %v", err)
+	assert.Equal(t, http.StatusOK, resp.Code)
+
+	err := json.Unmarshal([]byte(resp.Body.String()), &response)
+	respLen := len(response)
+	assert.Nil(t, err)
+	if respLen == 0 {
+
+		t.Errorf("Expecting response lenght to be > 0 but got %v", respLen)
 	}
-
-	if response.Urls[0].Loc == "" {
-		t.Errorf("Empty response from /crawl endpoint!")
-	}
-
 }
