@@ -3,90 +3,76 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
+	"log"
 	"regexp"
-	"strings"
+	_ "time"
 )
 
 type JsonResponse struct {
 	Urls []struct {
-		Loc        string   `json:"loc"`
-		Title      string   `json:"title"`
-		Image      string   `json:"image"`
-		LinkedUrls []string `json:"linked_urls"`
+		Loc        string        `json:"loc"`
+		Title      string        `json:"title"`
+		Image      string        `json:"image"`
+		LinkedUrls []interface{} `json:"linked_urls"`
 	} `json:"urls"`
 }
 
-var urlset Set
+const URL = "https://wiprodigital.com"
+const PATTERN = "https?://([a-z0-9]+[.])*wiprodigital[.].*"
 
-
+// ScrapingController is the handler for /crawl endpoint
 func ScrapingController(ctx *gin.Context) {
-	urlset.New()
+	urls := JsonResponse{}
 	c := colly.NewCollector(
-		colly.UserAgent("GoWebCrawlerBot/1.0"),
-		colly.URLFilters(
-			regexp.MustCompile("https?://([a-z0-9]+[.])*wiprodigital[.].*"),
-		),
 		colly.Async(true),
+		colly.UserAgent("Web Crawler WiproTest/v1.0"),
 	)
 
-	c.Limit(&colly.LimitRule{
-		DomainGlob:  "*",
-		Parallelism: 2,
-		//Delay:      1 * time.Second,
-	})
-	urls := JsonResponse{}
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		link := e.Attr("href")
-
-		match, _ := regexp.MatchString("https?://([a-z0-9]+[.])*wiprodigital[.].*", e.Request.AbsoluteURL(link))
+		match, _ := regexp.MatchString(PATTERN, e.Request.AbsoluteURL(e.Attr("href")))
 		if match {
-
-			urls.Urls = append(urls.Urls, struct {
-				Loc        string   `json:"loc"`
-				Title      string   `json:"title"`
-				Image      string   `json:"image"`
-				LinkedUrls []string `json:"linked_urls"`
-			}{e.Request.AbsoluteURL(link), formatTitle(e.Text), "", []string{}})
+			c.Visit(e.Attr("href"))
 		}
-
-		c.Visit(e.Request.AbsoluteURL(link))
 	})
 
-
-	c.OnRequest(func(r *colly.Request) {
-
-
-		urlset.Add(r.URL.String())
+	c.OnHTML("html", func(el *colly.HTMLElement) {
+		links := make([]string, 0, 1)
+		links = el.ChildAttrs("body a[href]", "href")
+		images := el.ChildAttrs("body img[src]", "src")
+		s := struct {
+			Loc        string        `json:"loc"`
+			Title      string        `json:"title"`
+			Image      string        `json:"image"`
+			LinkedUrls []interface{} `json:"linked_urls"`
+		}{}
+		ll := make([]interface{}, 0, 1)
+		for _, v := range links {
+			match, _ := regexp.MatchString(PATTERN, v)
+			if match {
+				ll = append(ll, v)
+			}
+		}
+		s.LinkedUrls = ll
+		s.Title = el.DOM.Find("title").Text()
+		s.Loc = el.Request.URL.String()
+		for _, v := range images {
+			if v != "" {
+				s.Image = v
+				break
+			}
+		}
+		urls.Urls = append(urls.Urls, s)
 	})
-	c.Visit("https://wiprodigital.com/")
+
+	err := c.Visit(URL)
+	if err != nil {
+		log.Println("Invalid URL: ", err)
+		ctx.JSON(400, gin.H{"message": "Invalid URL: " + URL})
+		return
+	}
 	c.Wait()
 
-
-	//for e, _ := range urlset.set {
-	//
-	//}
+	log.Println("Found ", len(urls.Urls), " URLs")
 
 	ctx.JSON(200, gin.H{"urlset": urls})
-}
-
-
-func formatTitle(str string) string {
-	str = strings.TrimSpace(strings.ReplaceAll(str, "\n", ""))
-	//str = strings.ReplaceAll(str, "  ", "")
-	if len(str) == 0 {
-		return ""
-	}
-	title := strings.Builder{}
-	title.WriteByte(str[0])
-	separated := false
-	for i:= 1; i< len(str); i++ {
-		if str[i] == ' ' && str[i+1] == ' ' && !separated {
-			title.WriteByte('-')
-			separated = true
-		}
-		if !(str[i] == ' ' && str[i+1] == ' ') {
-			title.WriteByte(str[i])
-		}
-	}
-	return title.String()
 }
