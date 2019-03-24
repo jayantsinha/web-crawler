@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gocolly/colly"
 	"log"
 	"regexp"
-	_ "time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gocolly/colly"
 )
 
 type JsonResponse struct {
