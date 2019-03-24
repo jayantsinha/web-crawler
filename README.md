@@ -40,8 +40,10 @@ To run tests, use `go test`
 
 Once the service is running, it will expose `GET /crawl` endpoint. Create a request as follows: 
 **REQUEST:** `GET localhost:8888/crawl`<br/>
-**HEADER:** `Scrape:https://wiprodigital.com`<br/>
+**HEADER:** `"Scrape": "https://wiprodigital.com"`<br/>
 
 #### Performance
 It takes 8.6 secs to crawl 226 URLs of [https://wiprodigital.com](https://wiprodigital.com) and create JSON response on an 8-core machine running windows 10 with 8GB of memory using Postman client.
-There is no guarantee that the first run will return all the 226 URLs but tests show that it takes 2-4 initial runs to produce a consistent result. This depends on many parameters like limits in domain, NS, etc. 
+There is no guarantee that the first run will return all the 226 URLs but tests show that it takes 2-4 initial runs to produce a consistent result. This depends on many parameters like limits in domain, NS, etc.
+
+#### Milestone 
