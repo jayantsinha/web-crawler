@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 )
+
 type mockWriter struct {
 	headers http.Header
 }
