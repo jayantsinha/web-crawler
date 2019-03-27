@@ -2,6 +2,8 @@
 
 This is a simple implementation of a web crawler in Go. It scans for all the URLs in the given domain and returns a JSON response.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/jayantsinha/web-crawler)](https://goreportcard.com/report/github.com/jayantsinha/web-crawler)
+
 #### Features:
 * Scrapes all the url on the given domain
 * Async scraping
@@ -38,7 +40,7 @@ By default, the gin mode is set to 'DebugMode' so that when you run the executab
 
 To run tests, use `go test`
 
-Once the service is running, it will expose `GET /crawl` endpoint. Create a request as follows: 
+Once the service is running, it will expose `GET /crawl` endpoint. Create a request as follows:<br/> 
 **REQUEST:** `GET localhost:8888/crawl`<br/>
 **HEADER:** `"Scrape": "https://wiprodigital.com"`<br/>
 
