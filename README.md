@@ -2,8 +2,7 @@
 
 This is a simple implementation of a web crawler in Go. It scans for all the URLs in the given domain and returns a JSON response.
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/jayantsinha/web-crawler)](https://goreportcard.com/report/github.com/jayantsinha/web-crawler)
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/jayantsinha/web-crawler)](https://goreportcard.com/report/github.com/jayantsinha/web-crawler)  [![CircleCI](https://circleci.com/gh/jayantsinha/web-crawler/tree/master.svg?style=shield)](https://circleci.com/gh/jayantsinha/web-crawler/tree/master)
 #### Features:
 * Scrapes all the url on the given domain
 * Async scraping
