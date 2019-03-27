@@ -10,7 +10,8 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type JsonResponse struct {
+// JSONResponse is the struct for json response for /crawl endpoint
+type JSONResponse struct {
 	Urls []struct {
 		Loc        string        `json:"loc"`
 		Title      string        `json:"title"`
@@ -19,7 +20,10 @@ type JsonResponse struct {
 	} `json:"urls"`
 }
 
+// URL holds the Scrape header value
 var URL string
+
+// Pattern is the regex pattern to filter out urls outside the domain specified in URL variable
 var Pattern string
 
 // ScrapingController is the handler for /crawl endpoint
@@ -36,7 +40,7 @@ func ScrapingController(ctx *gin.Context) {
 		return
 	}
 
-	urls := JsonResponse{}
+	urls := JSONResponse{}
 	c := colly.NewCollector(
 		colly.Async(true),
 		colly.UserAgent("Web Crawler WiproTest/v1.0"),
