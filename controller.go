@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 )
 
 // JSONResponse is the struct for json response for /crawl endpoint
@@ -19,15 +20,20 @@ type JSONResponse struct {
 	} `json:"urls"`
 }
 
-// URL holds the Scrape header value
+// URL holds the X-Scrape header value
 var URL string
 
 // Pattern is the regex pattern to filter out urls outside the domain specified in URL variable
 var Pattern string
 
+// MaxDepth holds the X-Max-Depth header value. It limits the recursion depth of the visited URLs.
+// If set to 0, it sets the scraper for infinite recursion
+var MaxDepth string
+
 // ScrapingController is the handler for /crawl endpoint
 func ScrapingController(ctx *gin.Context) {
-	URL = ctx.GetHeader("Scrape")
+	URL = ctx.GetHeader("X-Scrape")
+	MaxDepth = ctx.GetHeader("X-Max-Depth")
 	if URL == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid header"})
 		return
@@ -45,6 +51,14 @@ func ScrapingController(ctx *gin.Context) {
 		colly.UserAgent("Web Crawler WiproTest/v1.0"),
 	)
 
+	if MaxDepth != "" {
+		c.MaxDepth, err = strconv.Atoi(MaxDepth)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"message": "X-Max-Depth should be >= 0"})
+			return
+		}
+	}
+
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		match, _ := regexp.MatchString(Pattern, e.Request.AbsoluteURL(e.Attr("href")))
 		if match {
@@ -56,7 +70,9 @@ func ScrapingController(ctx *gin.Context) {
 		unqlinks := make(map[string]bool)
 		links := el.ChildAttrs("body a[href]", "href")
 		for _, link := range links {
-			unqlinks[link] = true
+			if len(link) > 1 {
+				unqlinks[link] = true
+			}
 		}
 		images := el.ChildAttrs("body img[src]", "src")
 		s := struct {
