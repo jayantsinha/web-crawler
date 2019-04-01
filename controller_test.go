@@ -14,8 +14,8 @@ func TestScrapingController(t *testing.T) {
 	router.GET("/crawl", ScrapingController)
 
 	req, _ := http.NewRequest(http.MethodGet, "/crawl", nil)
-	req.Header.Add("Scrape", "http://testing-ground.scraping.pro/blocks")
-
+	req.Header.Add("X-Scrape", "http://testing-ground.scraping.pro/blocks")
+	req.Header.Add("X-Max-Depth", "0")
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
