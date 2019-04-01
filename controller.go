@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/gocolly/colly"
 	"log"
 	"net/http"
 	"net/url"
 	"regexp"
-
-	"github.com/gin-gonic/gin"
-	"github.com/gocolly/colly"
 )
 
 // JSONResponse is the struct for json response for /crawl endpoint
@@ -49,13 +48,16 @@ func ScrapingController(ctx *gin.Context) {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		match, _ := regexp.MatchString(Pattern, e.Request.AbsoluteURL(e.Attr("href")))
 		if match {
-			c.Visit(e.Attr("href"))
+			c.Visit(e.Request.AbsoluteURL(e.Attr("href")))
 		}
 	})
 
 	c.OnHTML("html", func(el *colly.HTMLElement) {
-		links := make([]string, 0, 1)
-		links = el.ChildAttrs("body a[href]", "href")
+		unqlinks := make(map[string]bool)
+		links := el.ChildAttrs("body a[href]", "href")
+		for _, link := range links {
+			unqlinks[link] = true
+		}
 		images := el.ChildAttrs("body img[src]", "src")
 		s := struct {
 			Loc        string        `json:"loc"`
@@ -64,9 +66,11 @@ func ScrapingController(ctx *gin.Context) {
 			LinkedUrls []interface{} `json:"linked_urls"`
 		}{}
 		ll := make([]interface{}, 0, 1)
-		for _, v := range links {
-			if v[0] != '#' {
-				ll = append(ll, v)
+		if len(unqlinks) > 0 {
+			for k, _ := range unqlinks {
+				if k[0] != '#' {
+					ll = append(ll, el.Request.AbsoluteURL(k))
+				}
 			}
 		}
 		s.LinkedUrls = ll
