@@ -26,6 +26,6 @@ func TestScrapingController(t *testing.T) {
 	assert.Nil(t, err)
 	if respLen == 0 {
 
-		t.Errorf("Expecting response lenght to be > 0 but got %v", respLen)
+		t.Errorf("Expecting response length to be > 0 but got %v", respLen)
 	}
 }
