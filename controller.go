@@ -83,7 +83,7 @@ func ScrapingController(ctx *gin.Context) {
 		}{}
 		ll := make([]interface{}, 0, 1)
 		if len(unqlinks) > 0 {
-			for k, _ := range unqlinks {
+			for k := range unqlinks {
 				if k[0] != '#' {
 					ll = append(ll, el.Request.AbsoluteURL(k))
 				}

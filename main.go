@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SetupRouter creates a new instance of gin.Engine
 func SetupRouter() *gin.Engine {
 	if Environment == PRODUCTION {
 		gin.SetMode(gin.ReleaseMode)
